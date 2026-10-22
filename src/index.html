@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Budget</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+          <circle cx="16" cy="16" r="9" fill="#fff"/>
+          <circle cx="16" cy="16" r="4.5" fill="#4F46E5"/>
+        </svg>
+        <div>
+          <strong>Budget</strong>
+          <span>Sur cet ordinateur</span>
+        </div>
+      </div>
+      <label class="profile-switch">
+        <span>Profil</span>
+        <select id="profile-select"></select>
+      </label>
+      <nav>
+        <button type="button" data-page="now">Ce mois</button>
+        <button type="button" data-page="profile">Profil</button>
+        <button type="button" data-page="spend">Dépenses</button>
+        <button type="button" data-page="forecast">Prévision</button>
+        <button type="button" data-page="history">Historique</button>
+        <button type="button" data-page="settings">Réglages</button>
+      </nav>
+      <div class="side-foot">
+        <span id="side-month"></span>
+        <strong id="side-reste"></strong>
+        <em>Le minimum reste à toi</em>
+      </div>
+    </aside>
+    <main id="view"></main>
+  </div>
+  <div id="modal"></div>
+  <script src="engine.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>

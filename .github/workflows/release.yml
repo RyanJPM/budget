@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist:win
+      - run: python3 scripts/pack-win.py dist/win-unpacked Budget-Setup.zip
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Budget-Setup.zip
+          generate_release_notes: false
+          body: |
+            Extrais Budget-Setup.zip, puis lance Budget.exe.
+            L'application est vide. Importe ton fichier .budget depuis la page Profil.

@@ -1,0 +1,69 @@
+{
+  "name": "budget",
+  "productName": "Budget",
+  "version": "1.0.0",
+  "description": "Budget mensuel, sur cet ordinateur.",
+  "main": "electron/main.js",
+  "author": "Budget",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist:win": "electron-builder --win zip --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "local.budget",
+    "productName": "Budget",
+    "executableName": "Budget",
+    "artifactName": "Budget-Setup.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/icon.ico",
+        "to": "icon.ico"
+      }
+    ],
+    "electronLanguages": [
+      "fr",
+      "en-US"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": false,
+      "runAfterFinish": true,
+      "shortcutName": "Budget",
+      "installerLanguages": [
+        "fr_FR"
+      ],
+      "language": "1036",
+      "include": "build/installer.nsh"
+    }
+  }
+}
