@@ -1,7 +1,7 @@
 {
   "name": "budget",
   "productName": "Budget",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Budget mensuel, sur cet ordinateur.",
   "main": "electron/main.js",
   "author": "Budget",

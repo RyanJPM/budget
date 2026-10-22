@@ -18,8 +18,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1180,
     height: 820,
-    minWidth: 980,
-    minHeight: 640,
+    minWidth: 720,
+    minHeight: 560,
     title: "Budget",
     backgroundColor: "#F8FAFC",
     autoHideMenuBar: true,

@@ -8,7 +8,7 @@ Le bouton vert **Code** télécharge le code source. Il n’y a pas de `Budget.e
 
 Le programme est ce fichier :
 
-https://github.com/RyanJPM/budget/releases/download/v1.0.0/Budget-Setup.zip
+https://github.com/RyanJPM/budget/releases/latest/download/Budget-Setup.zip
 
 1. Télécharge `Budget-Setup.zip`.
 2. Extrais-le dans un dossier que tu gardes.

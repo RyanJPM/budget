@@ -71,7 +71,9 @@ function persist() {
 function refreshSide(rows) {
   const current = E.currentRow(rows);
   document.getElementById("side-month").textContent = current.label;
-  document.getElementById("side-reste").textContent = E.eur(current.reste);
+  const resteEl = document.getElementById("side-reste");
+  resteEl.textContent = E.eur(current.reste);
+  resteEl.classList.toggle("low", current.reste < current.floor - 0.001);
   const select = document.getElementById("profile-select");
   if (select && state.store) {
     const signature = state.store.profiles.map((profile) => profile.id + ":" + profile.name).join("|") + "#" + state.store.activeId;
@@ -80,7 +82,7 @@ function refreshSide(rows) {
       select.innerHTML = state.store.profiles.map((profile) => `<option value="${esc(profile.id)}" ${profile.id === state.store.activeId ? "selected" : ""}>${esc(profile.name)}</option>`).join("");
     }
   }
-  document.querySelectorAll("nav [data-page]").forEach((btn) => {
+  document.querySelectorAll("nav [data-page], .profile-dock [data-page]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.page === state.page);
   });
   const live = document.getElementById("live-reste");
@@ -127,8 +129,8 @@ function expenseCard(row) {
       ${num(expenseAmountBind(item, row.id), item.amount)}
       <button type="button" class="text-btn danger" data-action="remove-expense" data-index="${item.index}">Retirer</button>
     </div>`).join("") || '<p class="empty">Rien pour l’instant. Courses et repas dehors s’ajoutent ici, le mois n’est pas fini.</p>'}
-    ${addForm()}
     <div class="line total"><span>Total</span><span></span><strong class="num">${esc(E.eur(row.expenses || 0))}</strong></div>
+    ${addForm()}
   </article>`;
 }
 
@@ -337,7 +339,7 @@ function renderSettings() {
     <section class="section">
       <h2>Charges</h2>
       <p class="help">Factures seulement. Courses, achats et prélèvements : page Dépenses. Un loyer différent pour un mois se met dans « Un mois différent ».</p>
-      <table class="sheet"><thead><tr><th>Poste</th><th>Montant</th><th>Partagée</th><th>Dernier mois</th><th></th></tr></thead><tbody>
+      <div class="table-wrap sheet-wrap"><table class="sheet"><thead><tr><th>Poste</th><th>Montant</th><th>Partagée</th><th>Dernier mois</th><th></th></tr></thead><tbody>
         ${data.charges.map((charge, i) => `<tr>
           <td>${text("charges." + i + ".name", charge.name, "Loyer")}</td>
           <td>${num("charges." + i + ".amount", charge.amount)}</td>
@@ -345,7 +347,7 @@ function renderSettings() {
           <td>${month("charges." + i + ".end", charge.end)}</td>
           <td><button type="button" class="text-btn danger" data-action="remove" data-list="charges" data-index="${i}">Retirer</button></td>
         </tr>`).join("")}
-      </tbody></table>
+      </tbody></table></div>
       <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="charges">Ajouter une charge</button></div>
     </section>
     <section class="section">
@@ -356,7 +358,7 @@ function renderSettings() {
         <label class="field">Mois ${month("sales." + i + ".month", sale.month)}</label>
         <label class="field">Prix encaissé ${num("sales." + i + ".amount", sale.amount)}</label>
       </div><div class="actions"><button type="button" class="text-btn danger" data-action="remove" data-list="sales" data-index="${i}">Retirer</button></div></article>`).join("")}
-      <button type="button" class="text-btn" data-action="add" data-list="sales">Ajouter un objet vendu</button>
+      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="sales">Ajouter un objet vendu</button></div>
     </section>
     <section class="section">
       <h2>Dettes</h2>
@@ -383,7 +385,7 @@ function renderSettings() {
           <button type="button" class="text-btn danger" data-action="remove" data-list="debts" data-index="${i}">Retirer</button>
         </div>
       </article>`).join("")}
-      <button type="button" class="text-btn" data-action="add" data-list="debts">Ajouter une dette</button>
+      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="debts">Ajouter une dette</button></div>
     </section>
     <section class="section">
       <h2>On me doit</h2>
@@ -394,7 +396,7 @@ function renderSettings() {
         <label class="field">Mois ${month("receivables." + i + ".month", row.month)}</label>
       </div><div class="debt-top" style="margin-top:12px"><div class="checks">${check("receivables." + i + ".received", row.received, "Reçu")}</div>
         <button type="button" class="text-btn danger" data-action="remove" data-list="receivables" data-index="${i}">Retirer</button></div></article>`).join("")}
-      <button type="button" class="text-btn" data-action="add" data-list="receivables">Ajouter</button>
+      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="receivables">Ajouter quelqu’un</button></div>
     </section>
     <section class="section">
       <h2>Un mois différent</h2>
@@ -406,10 +408,12 @@ function renderSettings() {
         <label class="field">Libellé de l’extra ${text("exceptions." + i + ".extraLabel", row.extraLabel, "Déjà sorti")}</label>
         <label class="field">Loyer de ce mois ${num("exceptions." + i + ".rent", row.rent)}</label>
       </div><div class="actions"><button type="button" class="text-btn danger" data-action="remove" data-list="exceptions" data-index="${i}">Retirer</button></div></article>`).join("")}
-      <button type="button" class="text-btn" data-action="add" data-list="exceptions">Ajouter un mois</button>
+      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="exceptions">Ajouter un mois</button></div>
     </section>
-    <section class="section">
-      <button type="button" class="text-btn danger" data-action="reset">Revenir aux chiffres de départ</button>
+    <section class="section danger-zone">
+      <h2>Remise à zéro</h2>
+      <p class="help">Efface les chiffres de ce profil seulement. Les autres profils restent.</p>
+      <div class="actions"><button type="button" class="text-btn danger" data-action="reset">Revenir aux chiffres de départ</button></div>
     </section>`;
 }
 
@@ -474,13 +478,24 @@ function renderProfile() {
       <p class="sub">Un profil garde tout son budget. Tu peux en créer, en changer, et l’emporter chiffré sur un autre ordinateur.</p>
     </div>
     <section class="section">
+      <h2>Nom</h2>
       <div class="fields">
         <label class="field">Nom du profil ${text("profile.name", profile.name, "Prénom Nom")}</label>
       </div>
+    </section>
+    <section class="section">
+      <h2>Fichier</h2>
+      <p class="help">Exporter écrit un fichier chiffré. Importer le relit avec le même mot de passe, sur cet ordinateur ou un autre.</p>
       <div class="actions">
-        <button type="button" class="text-btn" data-action="new-profile">Nouveau profil</button>
         <button type="button" class="primary" data-action="export-profile">Exporter chiffré</button>
         <button type="button" class="text-btn" data-action="import-profile">Importer</button>
+        <button type="button" class="text-btn" data-action="new-profile">Nouveau profil</button>
+      </div>
+    </section>
+    <section class="section danger-zone">
+      <h2>Supprimer</h2>
+      <p class="help">Trois confirmations. Une copie chiffrée est proposée avant.</p>
+      <div class="actions">
         <button type="button" class="text-btn danger" data-action="delete-profile">Supprimer ce profil</button>
       </div>
     </section>`;
