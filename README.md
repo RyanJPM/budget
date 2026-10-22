@@ -2,11 +2,17 @@
 
 Application de bureau pour le budget mensuel. Elle tourne sur l’ordinateur, sans navigateur. Une installation neuve est vide : les chiffres arrivent par un fichier de profil, pas dans le programme.
 
-## Installer sur Windows
+## Télécharger le programme
 
-1. Télécharge `Budget-Setup.zip` depuis les Releases GitHub.
-2. Extrais le zip dans un dossier que tu gardes.
-3. Ouvre `Budget.exe`.
+Le bouton vert **Code** télécharge le code source. Il n’y a pas de `Budget.exe` dedans.
+
+Le programme est ce fichier :
+
+https://github.com/RyanJPM/budget/releases/download/v1.0.0/Budget-Setup.zip
+
+1. Télécharge `Budget-Setup.zip`.
+2. Extrais-le dans un dossier que tu gardes.
+3. Ouvre `Budget.exe`, qui est directement dans ce dossier.
 4. L’icône **Budget** se pose sur le bureau.
 
 Si Windows affiche SmartScreen : Informations complémentaires, puis Exécuter quand même.
