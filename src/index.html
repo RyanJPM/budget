@@ -3,6 +3,21 @@
 <head>
   <meta charset="utf-8">
   <title>Budget</title>
+  <script>
+    (function () {
+      try {
+        var look = JSON.parse(localStorage.getItem("budget-look") || "{}");
+        var allowed = { default: 1, papier: 1, foret: 1, ocean: 1, atelier: 1 };
+        var theme = allowed[look.theme] ? look.theme : "default";
+        var mode = theme === "default" && look.mode === "dark" ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.mode = mode;
+      } catch (e) {
+        document.documentElement.dataset.theme = "default";
+        document.documentElement.dataset.mode = "light";
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -38,7 +53,11 @@
         <span>Profil</span>
         <select id="profile-select" aria-label="Choisir un profil"></select>
       </label>
-      <button type="button" class="text-btn" data-page="profile" id="profile-manage">Gérer le profil</button>
+      <div class="dock-tools">
+        <button type="button" class="text-btn" id="mode-toggle" data-action="toggle-mode">Sombre</button>
+        <button type="button" class="text-btn" data-action="open-design">Design</button>
+        <button type="button" class="text-btn" data-page="profile" id="profile-manage">Gérer le profil</button>
+      </div>
     </footer>
   </div>
   <div id="modal"></div>
