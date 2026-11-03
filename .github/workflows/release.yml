@@ -4,26 +4,34 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   windows:
+    if: github.ref_type == 'tag' || contains(github.event.head_commit.message, 'Release v1.2.0')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - run: cat src/ui-a.js src/ui-b.js > src/ui.js
       - run: npm ci
       - run: npm test
       - run: npm run dist:win
       - run: python3 scripts/pack-win.py dist/win-unpacked Budget-Setup.zip
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.2.0
           files: Budget-Setup.zip
           generate_release_notes: false
           body: |
             Extrais Budget-Setup.zip, puis lance Budget.exe.
+            Le bouton vert Code ne contient pas Budget.exe.
             L'application est vide. Importe ton fichier .budget depuis la page Profil.
+
+            Cette version accepte la virgule dans les montants, laisse ajouter une charge, et permet de sauter un mois sur une dépense. Un prélèvement sauté est décalé, pas annulé. Cinq designs, et clair ou sombre pour le design Défaut.
