@@ -1,0 +1,120 @@
++.help { margin: 0 0 14px; color: var(--muted); line-height: 1.45; }
+ 
+ .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+ label.field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted); }
+@@ -537,9 +539,46 @@ label.check input { width: 16px; height: 16px; }
+   background: var(--white);
+   border: 1px solid var(--line);
+   border-radius: 16px;
+-  padding: 14px;
+-  margin-bottom: 12px;
++  padding: 16px;
++  margin-bottom: 16px;
+ }
++.tag {
++  display: inline-block;
++  margin-left: 8px;
++  padding: 1px 7px;
++  border-radius: 999px;
++  background: var(--soft);
++  color: var(--accent);
++  font-size: 11px;
++  font-weight: 700;
++  letter-spacing: 0.02em;
++  vertical-align: 1px;
++}
++.pot { margin: 8px 0 0; color: var(--muted); }
+#side-pot { margin-top: 6px; }
+#findbar {
++  position: fixed;
++  z-index: 40;
++  top: 14px;
++  left: 50%;
++  transform: translateX(-50%);
++  display: flex;
++  align-items: center;
++  gap: 6px;
++  width: min(420px, calc(100% - 24px));
++  padding: 8px;
++  background: var(--white);
++  color: var(--ink);
++  border: 1px solid var(--line);
++  border-radius: 14px;
++  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
++}
+#findbar[hidden] { display: none; }
+#findbar input { flex: 1; min-width: 0; }
+#find-count { color: var(--muted); font-size: 12px; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+.find-hit { outline: 2px solid #f97316; outline-offset: 1px; }
++::highlight(budget-find) { background-color: #fde047; color: #111; }
++::highlight(budget-find-on) { background-color: #f97316; color: #111; }
+ .debt-top, .row-actions { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+ .checks { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+ .actions { display: flex; gap: 8px; margin-top: 10px; }
+@@ -627,7 +666,7 @@ html:not([data-theme="default"]) #mode-toggle { display: none; }
+ .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+ .modal-error { color: var(--rose); font-size: 13px; min-height: 18px; }
+ h1.page { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
+-.page-head { margin-bottom: 8px; }
++.page-head { margin-bottom: 18px; }
+ 
+ @media (max-width: 1080px) {
+   .grid { grid-template-columns: 1fr; }
+diff --git a/test/public.test.js b/test/public.test.js
+index a40dea7..f4cf65e 100644
+--- a/test/public.test.js
++++ b/test/public.test.js
+@@ -92,6 +92,61 @@ test("sauter un mois répété ne prolonge pas la fin", () => {
+   near(by["2027-01"].expenses, 0, "fini");
+ });
+ 
++test("un placement sort du compte et reste visible à part", () => {
++  const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
++  data.salary = 1000;
++  data.floor = 0;
++  data.investments.push({ name: "Livret", amount: 40, start: "2026-11", end: "" });
++  const rows = forecast(data, { y: 2026, m: 10 });
++  const by = Object.fromEntries(rows.map((row) => [row.id, row]));
++  near(by["2026-10"].placed, 0, "pas encore");
++  near(by["2026-10"].pot, 0, "rien de côté");
++  near(by["2026-10"].reste, 1000, "octobre intact");
++  near(by["2026-11"].placed, 40, "novembre");
++  near(by["2026-11"].pot, 40, "pot novembre");
++  near(by["2026-11"].reste, 1960, "le compte baisse, le pot non");
++  near(by["2026-12"].pot, 80, "pot décembre");
++});
++
++test("un prêt entre le mois reçu et se rembourse ensuite", () => {
++  const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
++  data.salary = 1000;
++  data.floor = 0;
++  data.loans.push({
++    label: "Banque",
++    amount: 240,
++    received: "2026-11",
++    paid: 0,
++    cap: 80,
++    mode: "Progressif",
++    start: "2026-12",
++  });
++  const rows = forecast(data, { y: 2026, m: 10 });
++  const by = Object.fromEntries(rows.map((row) => [row.id, row]));
++  near(by["2026-10"].borrowed, 0, "pas encore reçu");
++  near(by["2026-10"].encore, 0, "rien dû avant");
++  near(by["2026-11"].borrowed, 240, "reçu");
++  near(by["2026-11"].reste, 1000 + 1000 + 240, "sur le compte");
++  near(by["2026-11"].encore, 240, "à rembourser");
++  near(by["2026-11"].cashPaid, 0, "pas ce mois");
++  near(by["2026-12"].cashPaid, 80, "premier remboursement");
++  near(by["2026-12"].encore, 160, "reste dû");
++  assert.equal(by["2026-12"].debts[0].loan, true);
++});
++
++test("un placement passe avant le remboursement", () => {
++  const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
++  data.salary = 200;
++  data.floor = 150;
++  data.investments.push({ name: "Livret", amount: 80, start: "", end: "" });
++  data.debts.push({ person: "Ami", amount: 100, paid: 0, cap: null, mode: "Progressif" });
++  const row = forecast(data, { y: 2026, m: 10 })[0];
++  near(row.placed, 80, "placé");

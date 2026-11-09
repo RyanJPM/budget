@@ -1,0 +1,8 @@
++  near(row.cashPaid, 0, "plus assez au-dessus du minimum");
++  near(row.reste, 120, "compte");
++  near(row.pot, 80, "pot");
++});
++
+ test("une charge commence au mois choisi", () => {
+   const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
+   data.charges.push({ name: "Salle", amount: 35, shared: false, start: "2026-11", end: "" });
