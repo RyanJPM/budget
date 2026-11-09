@@ -86,7 +86,7 @@ index f00697c..36133fe 100644
 -  --soft-hover: #eadcc8;
 -  --live: rgba(246, 241, 231, 0.94);
 -  font-family: Georgia, "Times New Roman", serif;
-}
+-}
 -
 -html[data-theme="foret"] {
 -  --ink: #14261c;
