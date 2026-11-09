@@ -22,7 +22,8 @@ jobs:
       - run: cat src/ui-a.js src/ui-b.js > src/ui.js
       - run: cat src/v130-css-a.patchpart src/v130-css-b.patchpart > src/v130-css.patch
       - run: git apply src/v130-ui.patch src/v130-css.patch
-      - run: |
+      - name: Polices
+        run: |
           mkdir -p src/fonts
           base=https://cdn.jsdelivr.net/fontsource/fonts
           curl -fsSL -o src/fonts/plus-jakarta-sans.woff2 "$base/plus-jakarta-sans:vf@5.2.5/latin-wght-normal.woff2"
@@ -32,20 +33,11 @@ jobs:
           curl -fsSL -o src/fonts/syne.woff2 "$base/syne:vf@5.2.5/latin-wght-normal.woff2"
           curl -fsSL -o src/fonts/manrope.woff2 "$base/manrope:vf@5.2.5/latin-wght-normal.woff2"
           curl -fsSL -o src/fonts/OFL.txt https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt
-          cat > src/fonts/NOTICE.txt << 'EOF'
-Plus Jakarta Sans — Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)
-Sora — Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font)
-Outfit — Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
-Space Grotesk — Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
-Syne — Copyright 2017 The Syne Project Authors (https://gitlab.com/bonjour-monde/fonderie/syne-typeface)
-Manrope — Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)
-
-Ces polices sont sous la SIL Open Font License 1.1, reproduite dans OFL.txt.
-EOF
+          python3 -c "open('src/fonts/NOTICE.txt','w').write('Plus Jakarta Sans, Sora, Outfit, Space Grotesk, Syne et Manrope sont sous la SIL Open Font License 1.1.\n')"
           test $(wc -c < src/fonts/plus-jakarta-sans.woff2) -gt 20000
           grep -q "Premier mois" src/ui.js
           grep -q Graphite src/styles.css
-          ! grep -q papier src/styles.css
+          if grep -q papier src/styles.css; then exit 1; fi
       - run: npm ci
       - run: npm test
       - run: npm run dist:win
