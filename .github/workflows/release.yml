@@ -4,12 +4,15 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   windows:
+    if: github.ref_type == 'tag' || contains(github.event.head_commit.message, 'Release v1.3.0')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,17 +20,44 @@ jobs:
         with:
           node-version: "22"
       - run: cat src/ui-a.js src/ui-b.js > src/ui.js
+      - run: cat src/v130-css-a.patchpart src/v130-css-b.patchpart > src/v130-css.patch
+      - run: git apply src/v130-ui.patch src/v130-css.patch
+      - run: |
+          mkdir -p src/fonts
+          base=https://cdn.jsdelivr.net/fontsource/fonts
+          curl -fsSL -o src/fonts/plus-jakarta-sans.woff2 "$base/plus-jakarta-sans:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/sora.woff2 "$base/sora:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/outfit.woff2 "$base/outfit:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/space-grotesk.woff2 "$base/space-grotesk:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/syne.woff2 "$base/syne:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/manrope.woff2 "$base/manrope:vf@5.2.5/latin-wght-normal.woff2"
+          curl -fsSL -o src/fonts/OFL.txt https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt
+          cat > src/fonts/NOTICE.txt << 'EOF'
+Plus Jakarta Sans — Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)
+Sora — Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font)
+Outfit — Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Space Grotesk — Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+Syne — Copyright 2017 The Syne Project Authors (https://gitlab.com/bonjour-monde/fonderie/syne-typeface)
+Manrope — Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)
+
+Ces polices sont sous la SIL Open Font License 1.1, reproduite dans OFL.txt.
+EOF
+          test $(wc -c < src/fonts/plus-jakarta-sans.woff2) -gt 20000
+          grep -q "Premier mois" src/ui.js
+          grep -q Graphite src/styles.css
+          ! grep -q papier src/styles.css
       - run: npm ci
       - run: npm test
       - run: npm run dist:win
       - run: python3 scripts/pack-win.py dist/win-unpacked Budget-Setup.zip
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.3.0
           files: Budget-Setup.zip
           generate_release_notes: false
           body: |
             Extrais Budget-Setup.zip, puis lance Budget.exe.
-            Le bouton vert Code ne contient pas Budget.exe.
             L'application est vide. Importe ton fichier .budget depuis la page Profil.
 
-            Cette version accepte la virgule dans les montants, laisse ajouter une charge, et permet de sauter un mois sur une dépense. Un prélèvement sauté est décalé, pas annulé. Cinq designs, et clair ou sombre pour le design Défaut.
+            Une charge peut commencer à un mois précis. Vide, elle est là depuis le début.
+            Défaut garde le clair et le sombre. Studio, Lagon et Lin sont clairs. Graphite, Nuit et Braise sont sombres.
