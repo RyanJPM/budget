@@ -1,0 +1,79 @@
++          <label class="field">Nom ${text("loans." + i + ".label", loan.label, "FLOA, banque…")}</label>
++          <label class="field">Montant reçu ${num("loans." + i + ".amount", loan.amount)}</label>
++          <label class="field">Mois reçu ${month("loans." + i + ".received", loan.received)}</label>
++          <label class="field">Déjà remboursé ${num("loans." + i + ".paid", loan.paid)}</label>
++          <label class="field">Plafond / mois ${num("loans." + i + ".cap", loan.cap)}</label>
++          <label class="field">Mode <select data-bind="loans.${i}.mode" data-type="text">
++            <option ${loan.mode !== "Solde entier" ? "selected" : ""}>Progressif</option>
++            <option ${loan.mode === "Solde entier" ? "selected" : ""}>Solde entier</option>
++          </select></label>
++          <label class="field">À partir de ${month("loans." + i + ".start", loan.start)}</label>
++          <label class="field grow">Seulement après ${text("loans." + i + ".after", loan.after, "Nom d’une dette au-dessus")}</label>
++        </div>
++        <div class="debt-top" style="margin-top:12px">
++          <div class="checks">
++            ${check("loans." + i + ".pause", loan.pause, "Pause")}
++            ${check("loans." + i + ".settled", loan.settled, "Réglé")}
++          </div>
++          <button type="button" class="text-btn danger" data-action="remove" data-list="loans" data-index="${i}">Retirer</button>
++        </div>
++      </article>`).join("")}
++      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="loans">Ajouter un prêt</button></div>
++    </section>
+     <section class="section">
+       <h2>On me doit</h2>
+       <p class="help">Coche « Reçu » le mois où l’argent arrive. Il entre dans le reste.</p>
+@@ -519,6 +588,7 @@ function render() {
+     refreshSide(rows);
+   }
+   view.scrollTop = scroll;
++  applyFind();
+ }
+ 
+ function expenseAmountBind(item, rowId) {
+@@ -575,6 +645,8 @@ function shapeExpense(expense) {
+ 
+ function blank(list) {
+   if (list === "charges") return { name: "", amount: null, shared: false, start: "", end: "" };
++  if (list === "investments") return { name: "", amount: null, start: "", end: "" };
++  if (list === "loans") return { label: "", amount: 0, received: "", paid: 0, cap: null, mode: "Progressif", start: "", after: "", pause: false, settled: false };
+   if (list === "sales") return { label: "", month: shown(allRows()).id, amount: 0 };
+   if (list === "debts") return { person: "", amount: 0, paid: 0, cap: null, mode: "Progressif", settled: false, pause: false, halfBills: false, after: "", start: "" };
+   if (list === "receivables") return { person: "", amount: 0, month: "", received: false };
+@@ -785,7 +857,9 @@ function onClick(event) {
+     return;
+   }
+   if (kind === "add") {
+-    state.data[action.dataset.list].push(blank(action.dataset.list));
++    const list = action.dataset.list;
++    if (!Array.isArray(state.data[list])) state.data[list] = [];
++    state.data[list].push(blank(list));
+     persist();
+     render();
+     return;
+@@ -1110,14 +1184,148 @@ async function boot() {
+     }, 0);
+   });
+   document.body.addEventListener("keydown", (event) => {
++    const key = event.key.toLowerCase();
++    if ((event.ctrlKey || event.metaKey) && key === "f") {
++      event.preventDefault();
++      openFind();
++      return;
++    }
++    if (event.key === "Escape" && !state.modal && !document.getElementById("findbar").hidden) {
++      event.preventDefault();
++      closeFind();
++      return;
++    }
+     if (!state.modal) return;
+     if (event.key === "Escape") closeModal();
+-    if (event.key === "Enter") {
++    if (event.key === "Enter" && event.target.id !== "find-q") {
+       const primary = document.querySelector("#modal .primary");
+       if (primary) primary.click();
+     }
+   });
++  const findQ = document.getElementById("find-q");
++  findQ.addEventListener("input", () => applyFind(true));
++  findQ.addEventListener("keydown", (event) => {

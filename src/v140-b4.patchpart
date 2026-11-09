@@ -1,0 +1,108 @@
++    if (event.key === "Enter") {
++      event.preventDefault();
++      stepFind(event.shiftKey ? -1 : 1);
++    }
++  });
++  document.getElementById("find-next").addEventListener("click", () => stepFind(1));
++  document.getElementById("find-prev").addEventListener("click", () => stepFind(-1));
++  document.getElementById("find-close").addEventListener("click", closeFind);
++  document.getElementById("find-open").addEventListener("click", openFind);
+   render();
+ }
+ 
++const findState = { hits: [], index: 0, marks: null, current: null };
++
++function openFind() {
++  const bar = document.getElementById("findbar");
++  bar.hidden = false;
++  const input = document.getElementById("find-q");
++  input.focus();
++  input.select();
++  applyFind(true);
++}
++
++function closeFind() {
++  const bar = document.getElementById("findbar");
++  if (bar) bar.hidden = true;
++  clearFind();
++}
++
++function clearFind() {
++  findState.hits = [];
++  document.querySelectorAll(".find-hit").forEach((el) => el.classList.remove("find-hit"));
++  if (findState.marks) findState.marks.clear();
++  if (findState.current) findState.current.clear();
++  const count = document.getElementById("find-count");
++  if (count) count.textContent = "";
++}
++
++function collectHits(query) {
++  const hits = [];
++  const q = query.toLowerCase();
++  const roots = [document.getElementById("view"), document.querySelector("aside"), document.querySelector(".profile-dock")];
++  for (const root of roots) {
++    if (!root) continue;
++    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
++    let node = walker.nextNode();
++    while (node) {
++      const parent = node.parentElement;
++      if (!parent || !parent.closest("#findbar")) {
++        const text = node.nodeValue || "";
++        const low = text.toLowerCase();
++        let from = 0;
++        let at = low.indexOf(q, from);
++        while (at >= 0) {
++          const range = document.createRange();
++          range.setStart(node, at);
++          range.setEnd(node, at + q.length);
++          hits.push({ range });
++          from = at + q.length;
++          at = low.indexOf(q, from);
++        }
++      }
++      node = walker.nextNode();
++    }
++    root.querySelectorAll("input, textarea").forEach((el) => {
++      if (el.closest("#findbar")) return;
++      if ((el.value || "").toLowerCase().includes(q)) hits.push({ el });
++    });
++  }
++  return hits;
++}
++
++function paintFind() {
++  document.querySelectorAll(".find-hit").forEach((el) => el.classList.remove("find-hit"));
++  if (findState.marks) findState.marks.clear();
++  if (findState.current) findState.current.clear();
++  const count = document.getElementById("find-count");
++  const hits = findState.hits;
++  if (!hits.length) {
++    if (count) count.textContent = "0";
++    return;
++  }
++  findState.index = (findState.index + hits.length) % hits.length;
++  hits.forEach((hit, i) => {
++    const on = i === findState.index;
++    if (hit.range && findState.marks) {
++      (on ? findState.current : findState.marks).add(hit.range);
++    }
++    if (hit.el && on) hit.el.classList.add("find-hit");
++  });
++  const hit = hits[findState.index];
++  const target = hit.el || (hit.range && hit.range.startContainer && hit.range.startContainer.parentElement);
++  if (target && target.scrollIntoView) target.scrollIntoView({ block: "center", inline: "nearest" });
++  if (count) count.textContent = (findState.index + 1) + " / " + hits.length;
++}
++
++function applyFind(reset) {
++  const bar = document.getElementById("findbar");
++  if (!bar || bar.hidden) return;
++  const query = document.getElementById("find-q").value.trim();
++  const keep = reset ? 0 : findState.index;
++  clearFind();
++  if (typeof Highlight === "function" && window.CSS && CSS.highlights && !findState.marks) {
++    findState.marks = new Highlight();
++    findState.current = new Highlight();
++    CSS.highlights.set("budget-find", findState.marks);
++    CSS.highlights.set("budget-find-on", findState.current);
++  }
