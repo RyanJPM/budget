@@ -1,0 +1,55 @@
+         ${next ? `<article class="card next">En ${esc(next.label)}, avec la ${esc(next.payLabel.charAt(0).toLowerCase() + next.payLabel.slice(1))}, reste ${esc(E.eur(next.reste))}.</article>` : ""}
+       </div>
+       <article class="card" style="grid-column: 1 / -1">
+@@ -284,7 +314,7 @@ function renderNow(rows) {
+           const pct = debt.amount > 0 ? Math.max(0, Math.min(100, Math.round((1 - debt.close / debt.amount) * 100))) : 0;
+           return `<div class="debt">
+             <div>
+-              <div class="who">${esc(debt.person)}</div>
++              <div class="who">${esc(debt.person)}${debt.loan ? ' <span class="tag">Prêt</span>' : ""}</div>
+               <div class="bar"><i style="width:${pct}%"></i></div>
+               ${debt.note ? `<div class="note">${esc(debt.note)}</div>` : ""}
+             </div>
+@@ -323,13 +353,14 @@ function moneyRows(rows) {
+     <td>${esc(E.eur(row.report))}</td>
+     <td>${esc(E.eur(row.charges))}</td>
+     <td>${esc(E.eur(row.expenses || 0))}</td>
++    <td>${esc(E.eur(row.pot || 0))}</td>
+     <td>${esc(E.eur(row.repaid))}</td>
+     <td><strong>${esc(E.eur(row.reste))}</strong></td>
+     <td>${esc(E.eur(row.encore))}</td>
+   </tr>`).join("");
+ }
+ 
+-const HEAD = `<tr><th>Mois</th><th>Paye</th><th>Montant</th><th>Ventes</th><th>Reporté</th><th>Charges</th><th>Dépenses</th><th>Remboursé</th><th>Reste</th><th>Encore dû</th></tr>`;
++const HEAD = `<tr><th>Mois</th><th>Paye</th><th>Montant</th><th>Ventes</th><th>Reporté</th><th>Charges</th><th>Dépenses</th><th>Placé</th><th>Remboursé</th><th>Reste</th><th>Encore dû</th></tr>`;
+ 
+ function renderForecast(rows) {
+   return `
+@@ -437,6 +468,17 @@ function renderSettings() {
+       </tbody></table></div>
+       <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="charges">Ajouter une charge</button></div>
+     </section>
++    <section class="section">
++      <h2>Investissements</h2>
++      <p class="help">L’argent placé sort du compte, mais il n’est pas perdu. Premier mois vide : tous les mois depuis le début. Dernier mois vide : ça continue. Le total se voit à part du reste, sur Ce mois.</p>
++      ${(data.investments || []).map((item, i) => `<article class="ex-card"><div class="fields">
++        <label class="field">Où ${text("investments." + i + ".name", item.name, "LEP, livret…")}</label>
++        <label class="field">Montant par mois ${num("investments." + i + ".amount", item.amount)}</label>
++        <label class="field">Premier mois ${month("investments." + i + ".start", item.start)}</label>
++        <label class="field">Dernier mois ${month("investments." + i + ".end", item.end)}</label>
++      </div><div class="actions"><button type="button" class="text-btn danger" data-action="remove" data-list="investments" data-index="${i}">Retirer</button></div></article>`).join("")}
++      <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="investments">Ajouter un placement</button></div>
++    </section>
+     <section class="section">
+       <h2>Objets vendus</h2>
+       <p class="help">Chaque vente entre dans le mois choisi, à part de la paye. Un prélèvement, comme un ordinateur payé en plusieurs fois, se gère dans Dépenses.</p>
+@@ -474,6 +516,33 @@ function renderSettings() {
+       </article>`).join("")}
+       <div class="actions"><button type="button" class="text-btn" data-action="add" data-list="debts">Ajouter une dette</button></div>
+     </section>
++    <section class="section">
++      <h2>Prêts</h2>
++      <p class="help">Un crédit reçu, à rembourser. Le montant entre sur le compte le mois reçu. Laisse ce mois vide s’il est déjà dans la poche : il n’entre pas une deuxième fois. « À partir de » est le premier remboursement. Les prêts se paient après les dettes.</p>
++      ${(data.loans || []).map((loan, i) => `<article class="debt-card">
++        <div class="fields">
