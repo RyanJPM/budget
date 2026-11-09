@@ -1,14 +1,14 @@
 {
   "name": "budget",
   "productName": "Budget",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Budget mensuel, sur cet ordinateur.",
   "main": "electron/main.js",
   "author": "Budget",
   "scripts": {
-    "start": "electron .",
+    "start": "node scripts/unpack-fonts.js && electron .",
     "test": "node --test test/*.test.js",
-    "dist:win": "electron-builder --win zip --x64"
+    "dist:win": "node scripts/unpack-fonts.js && electron-builder --win zip --x64"
   },
   "devDependencies": {
     "electron": "^33.4.11",

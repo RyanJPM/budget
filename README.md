@@ -25,10 +25,10 @@ Le dépôt ne contient aucun budget. Garde le fichier `.budget` chez toi.
 
 ## Saisie
 
-Le salaire habituel est touché le mois suivant. Une facture se met dans les charges : n’importe quel nom, pas seulement celles déjà prévues. Une course, un achat ou un prélèvement se met dans les dépenses : une fois, plusieurs mois, ou un premier montant puis des suivants. Les montants acceptent la virgule.
+Le salaire habituel est touché le mois suivant. Une facture se met dans les charges : n’importe quel nom, pas seulement celles déjà prévues. Premier mois vide : elle est là depuis le début. Un premier mois la fait commencer ce mois-là, et les mois d’avant ne la comptent pas. Une course, un achat ou un prélèvement se met dans les dépenses : une fois, plusieurs mois, ou un premier montant puis des suivants. Les montants acceptent la virgule.
 
 Sauter un mois, sur une dépense, décale un prélèvement : le mois sauté n’est pas annulé, les suivants avancent d’un cran. Une dépense répétée est seulement en pause ce mois-là. Une dépense unique passe au mois suivant.
 
 Une vente se range dans Objets vendus, le mois où l’argent est encaissé. Le minimum à garder reste dans la poche et n’est pas une dépense. Vide, il vaut 150 €. Écris 0 pour ne rien garder.
 
-Le bouton Design, en bas, propose cinq apparences. Clair et sombre ne concernent que Défaut. Ce choix reste sur l’ordinateur, il n’est pas dans le fichier de profil.
+Le bouton Design, en bas, propose Défaut, trois apparences claires et trois sombres. Clair et sombre ne concernent que Défaut. Ce choix reste sur l’ordinateur, il n’est pas dans le fichier de profil.

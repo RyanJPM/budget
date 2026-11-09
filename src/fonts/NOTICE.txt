@@ -1,0 +1,8 @@
+Plus Jakarta Sans — Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)
+Sora — Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font)
+Outfit — Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Space Grotesk — Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+Syne — Copyright 2017 The Syne Project Authors (https://gitlab.com/bonjour-monde/fonderie/syne-typeface)
+Manrope — Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)
+
+Ces polices sont sous la SIL Open Font License 1.1, reproduite dans OFL.txt.
