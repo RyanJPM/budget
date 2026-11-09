@@ -24,8 +24,8 @@
 +  vertical-align: 1px;
 +}
 +.pot { margin: 8px 0 0; color: var(--muted); }
-#side-pot { margin-top: 6px; }
-#findbar {
++#side-pot { margin-top: 6px; }
++#findbar {
 +  position: fixed;
 +  z-index: 40;
 +  top: 14px;
@@ -42,10 +42,10 @@
 +  border-radius: 14px;
 +  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 +}
-#findbar[hidden] { display: none; }
-#findbar input { flex: 1; min-width: 0; }
-#find-count { color: var(--muted); font-size: 12px; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
-.find-hit { outline: 2px solid #f97316; outline-offset: 1px; }
++#findbar[hidden] { display: none; }
++#findbar input { flex: 1; min-width: 0; }
++#find-count { color: var(--muted); font-size: 12px; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
++.find-hit { outline: 2px solid #f97316; outline-offset: 1px; }
 +::highlight(budget-find) { background-color: #fde047; color: #111; }
 +::highlight(budget-find-on) { background-color: #f97316; color: #111; }
  .debt-top, .row-actions { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
