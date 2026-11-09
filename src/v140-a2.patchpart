@@ -1,0 +1,131 @@
+       const cash0 = round2(income - charges - extra);
+       const expensesDetail = [];
+       let spent = 0;
+@@ -375,14 +428,21 @@
+       });
+       spent = round2(spent);
+       installments = round2(installments);
+-      let cash = round2(cash0 - spent);
++      let cash = round2(cash0 - spent - placed);
+ 
+       const closes = openings.slice();
+       const debtRows = [];
+       let cashPaid = 0;
+       let creditPaid = 0;
+-      for (let d = 0; d < debts.length; d++) {
+-        const debt = debts[d];
++      for (let d = 0; d < plan.length; d++) {
++        const debt = plan[d];
++        if (debt.loan) {
++          const bornAt = parseMonth(debt.received) || parseMonth(debt.start);
++          if (bornAt && cmpMonth(ym, bornAt) < 0) {
++            closes[d] = 0;
++            continue;
++          }
++        }
+         if (!(debt.person || "").trim()) {
+           closes[d] = 0;
+           continue;
+@@ -392,7 +452,7 @@
+         let blocked = false;
+         const after = (debt.after || "").trim().toLowerCase();
+         if (after) {
+-          const j = debts.findIndex((item) => (item.person || "").trim().toLowerCase() === after);
++          const j = plan.findIndex((item) => (item.person || "").trim().toLowerCase() === after);
+           if (j >= 0 && j < d) blocked = closes[j] > 0.009;
+           else if (j > d) blocked = openings[j] > 0.009;
+         }
+@@ -428,6 +488,7 @@
+           close,
+           note,
+           amount: Number(debt.amount) || 0,
++          loan: !!debt.loan,
+         });
+       }
+       carried = closes;
+@@ -446,6 +507,11 @@
+         report: round2(report),
+         recu,
+         receivedFrom,
++        borrowed,
++        loansIn,
++        placed,
++        placedDetail,
++        pot,
+         extra: round2(extra),
+         extraLabel: extra ? ((ex && ex.extraLabel) || "Extra") : "",
+         charges,
+diff --git a/src/index.html b/src/index.html
+index 6ea44ce..ee1a1a4 100644
+--- a/src/index.html
++++ b/src/index.html
+@@ -44,6 +44,7 @@
+       <div class="side-foot">
+         <span id="side-month"></span>
+         <strong id="side-reste"></strong>
++        <span id="side-pot" hidden></span>
+         <em>Le minimum reste à toi</em>
+       </div>
+     </aside>
+@@ -54,12 +55,20 @@
+         <select id="profile-select" aria-label="Choisir un profil"></select>
+       </label>
+       <div class="dock-tools">
++        <button type="button" class="text-btn" id="find-open">Chercher</button>
+         <button type="button" class="text-btn" id="mode-toggle" data-action="toggle-mode">Sombre</button>
+         <button type="button" class="text-btn" data-action="open-design">Design</button>
+         <button type="button" class="text-btn" data-page="profile" id="profile-manage">Gérer le profil</button>
+       </div>
+     </footer>
+   </div>
++  <div id="findbar" hidden>
++    <input id="find-q" type="search" placeholder="Chercher" aria-label="Chercher sur la page" autocomplete="off">
++    <span id="find-count"></span>
++    <button type="button" id="find-prev" aria-label="Résultat précédent">↑</button>
++    <button type="button" id="find-next" aria-label="Résultat suivant">↓</button>
++    <button type="button" id="find-close" aria-label="Fermer la recherche">×</button>
++  </div>
+   <div id="modal"></div>
+   <script src="engine.js"></script>
+   <script src="ui.js"></script>
+diff --git a/src/styles.css b/src/styles.css
+index 36133fe..5c38e91 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -430,21 +430,22 @@ main { overflow: auto; padding: 28px 32px 48px; min-width: 0; }
+ }
+ 
+ .banner {
+-  margin-top: 16px;
++  margin-top: 22px;
+   background: var(--banner-bg);
+   color: var(--banner-ink);
+   border-radius: 12px;
+   padding: 12px 14px;
+ }
+ 
+-.grid { display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 16px; margin-top: 22px; }
++.grid { display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 22px; margin-top: 28px; }
++.stack { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+ .card {
+   background: var(--white);
+   border: 1px solid var(--line);
+   border-radius: 16px;
+-  padding: 8px 16px 12px;
++  padding: 14px 18px 18px;
+ }
+-.card h2 { margin: 12px 0; font-size: 15px; }
++.card h2 { margin: 2px 0 14px; font-size: 15px; }
+ .card.next {
+   background: var(--soft);
+   border-color: var(--soft-line);
+@@ -506,9 +507,10 @@ tr.current:hover td { background: var(--soft-hover); }
+ #save-state { color: var(--muted); font-size: 12px; }
+ #save-state.on { color: var(--green); }
+ 
+-.section { margin-top: 22px; }
+-.section h2 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.02em; }
+-.help { margin: 0 0 12px; color: var(--muted); }
++.section { margin-top: 36px; }
++.section:first-of-type { margin-top: 8px; }
++.section h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: -0.02em; }
