@@ -1,0 +1,98 @@
+diff --git a/src/index.html b/src/index.html
+index 182cb71..6ea44ce 100644
+--- a/src/index.html
++++ b/src/index.html
+@@ -7,7 +7,7 @@
+     (function () {
+       try {
+         var look = JSON.parse(localStorage.getItem("budget-look") || "{}");
+-        var allowed = { default: 1, papier: 1, foret: 1, ocean: 1, atelier: 1 };
++        var allowed = { default: 1, studio: 1, lagon: 1, lin: 1, graphite: 1, nuit: 1, braise: 1 };
+         var theme = allowed[look.theme] ? look.theme : "default";
+         var mode = theme === "default" && look.mode === "dark" ? "dark" : "light";
+         document.documentElement.dataset.theme = theme;
+diff --git a/src/ui.js b/src/ui.js
+index a985a8f..cbd4566 100644
+--- a/src/ui.js
++++ b/src/ui.js
+@@ -2,10 +2,12 @@ const E = window.BudgetEngine;
+ 
+ const THEMES = [
+   { id: "default", name: "Défaut", font: "Segoe UI", note: "Indigo. Clair ou sombre." },
+-  { id: "papier", name: "Papier", font: "Georgia", note: "Crème et brun." },
+-  { id: "foret", name: "Forêt", font: "Verdana", note: "Vert profond." },
+-  { id: "ocean", name: "Océan", font: "Calibri", note: "Bleu d’eau." },
+-  { id: "atelier", name: "Atelier", font: "Palatino", note: "Terracotta." },
++  { id: "studio", name: "Studio", font: "Plus Jakarta Sans", note: "Clair. Noir et blanc." },
++  { id: "lagon", name: "Lagon", font: "Sora", note: "Clair. Brume et teal." },
++  { id: "lin", name: "Lin", font: "Outfit", note: "Clair. Pierre et bleu." },
++  { id: "graphite", name: "Graphite", font: "Space Grotesk", note: "Sombre. Chartreuse." },
++  { id: "nuit", name: "Nuit", font: "Syne", note: "Sombre. Iris." },
++  { id: "braise", name: "Braise", font: "Manrope", note: "Sombre. Braise." },
+ ];
+ 
+ const state = {
+@@ -20,7 +22,7 @@ const state = {
+ function readLook() {
+   let look = {};
+   try { look = JSON.parse(localStorage.getItem("budget-look") || "{}") || {}; } catch (err) { look = {}; }
+-  const allowed = { default: 1, papier: 1, foret: 1, ocean: 1, atelier: 1 };
++  const allowed = { default: 1, studio: 1, lagon: 1, lin: 1, graphite: 1, nuit: 1, braise: 1 };
+   if (!allowed[look.theme]) look.theme = "default";
+   look.mode = look.mode === "dark" ? "dark" : "light";
+   return look;
+@@ -422,12 +424,13 @@ function renderSettings() {
+     </section>
+     <section class="section">
+       <h2>Charges</h2>
+-      <p class="help">N’importe quelle facture, pas seulement le loyer. La ligne vide reste le temps de la remplir. Courses, achats et prélèvements : page Dépenses. Un loyer différent pour un mois se met dans « Un mois différent ».</p>
+-      <div class="table-wrap sheet-wrap"><table class="sheet"><thead><tr><th>Poste</th><th>Montant</th><th>Partagée</th><th>Dernier mois</th><th></th></tr></thead><tbody>
++      <p class="help">N’importe quelle facture, pas seulement le loyer. Premier mois vide : la charge est là depuis le début. Rempli : elle commence ce mois-là, les mois d’avant ne la comptent pas. Dernier mois vide : elle continue. Courses, achats et prélèvements : page Dépenses.</p>
++      <div class="table-wrap sheet-wrap"><table class="sheet"><thead><tr><th>Poste</th><th>Montant</th><th>Partagée</th><th>Premier mois</th><th>Dernier mois</th><th></th></tr></thead><tbody>
+         ${data.charges.map((charge, i) => `<tr>
+           <td>${text("charges." + i + ".name", charge.name, "Loyer")}</td>
+           <td>${num("charges." + i + ".amount", charge.amount)}</td>
+           <td>${check("charges." + i + ".shared", charge.shared, "Oui")}</td>
++          <td>${month("charges." + i + ".start", charge.start)}</td>
+           <td>${month("charges." + i + ".end", charge.end)}</td>
+           <td><button type="button" class="text-btn danger" data-action="remove" data-list="charges" data-index="${i}">Retirer</button></td>
+         </tr>`).join("")}
+@@ -571,7 +574,7 @@ function shapeExpense(expense) {
+ }
+ 
+ function blank(list) {
+-  if (list === "charges") return { name: "", amount: null, shared: false, end: "" };
++  if (list === "charges") return { name: "", amount: null, shared: false, start: "", end: "" };
+   if (list === "sales") return { label: "", month: shown(allRows()).id, amount: 0 };
+   if (list === "debts") return { person: "", amount: 0, paid: 0, cap: null, mode: "Progressif", settled: false, pause: false, halfBills: false, after: "", start: "" };
+   if (list === "receivables") return { person: "", amount: 0, month: "", received: false };
+@@ -849,7 +852,7 @@ function paintModal() {
+     actions = modalButtons([["close-modal", "Annuler", "text-btn"], ["create-ok", "Créer", "primary"]]);
+   } else if (modal.kind === "design") {
+     const look = readLook();
+-    body = `<h2>Design</h2><p>Cinq apparences. Le bouton clair / sombre n’existe que pour Défaut.</p>
++    body = `<h2>Design</h2><p>Défaut, trois clairs et trois sombres. Le bouton clair / sombre n’existe que pour Défaut.</p>
+       <div class="theme-list">
+         ${THEMES.map((theme) => `<button type="button" class="theme-choice ${look.theme === theme.id ? "on" : ""}" data-action="pick-theme" data-theme="${theme.id}">
+           <strong>${esc(theme.name)}</strong>
+diff --git a/test/public.test.js b/test/public.test.js
+index 21c1dc2..a40dea7 100644
+--- a/test/public.test.js
++++ b/test/public.test.js
+@@ -92,6 +92,16 @@ test("sauter un mois répété ne prolonge pas la fin", () => {
+   near(by["2027-01"].expenses, 0, "fini");
+ });
+ 
++test("une charge commence au mois choisi", () => {
++  const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
++  data.charges.push({ name: "Salle", amount: 35, shared: false, start: "2026-11", end: "" });
++  const rows = forecast(data, { y: 2026, m: 10 });
++  const by = Object.fromEntries(rows.map((row) => [row.id, row]));
++  near(by["2026-10"].charges, 0, "avant le début");
++  near(by["2026-11"].charges, 35, "au début");
++  near(by["2026-12"].charges, 35, "après");
++});
++
+ test("une charge ajoutée reste une charge", () => {
+   const data = blankBudget(new Date("2026-10-15T12:00:00Z"));
+   data.charges.push({ name: "", amount: null, shared: false, end: "" });
