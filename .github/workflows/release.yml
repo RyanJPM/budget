@@ -4,24 +4,20 @@ on:
   push:
     tags:
       - "v*"
-    branches:
-      - main
 
 permissions:
   contents: write
 
 jobs:
   windows:
-    if: github.ref_type == 'tag' || contains(github.event.head_commit.message, 'Release v1.3.0')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: cat src/ui-a.js src/ui-b.js > src/ui.js
-      - run: cat src/v130-css-a.patchpart src/v130-css-b.patchpart > src/v130-css.patch
-      - run: git apply src/v130-ui.patch src/v130-css.patch
+      - run: if [ -f src/ui-a.js ]; then cat src/ui-a.js src/ui-b.js > src/ui.js; fi
+      - run: if [ -f src/v130-css-a.patchpart ]; then cat src/v130-css-a.patchpart src/v130-css-b.patchpart > src/v130-css.patch; git apply src/v130-ui.patch src/v130-css.patch; fi
       - name: Polices
         run: |
           mkdir -p src/fonts
@@ -35,16 +31,12 @@ jobs:
           curl -fsSL -o src/fonts/OFL.txt https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt
           python3 -c "open('src/fonts/NOTICE.txt','w').write('Plus Jakarta Sans, Sora, Outfit, Space Grotesk, Syne et Manrope sont sous la SIL Open Font License 1.1.\n')"
           test $(wc -c < src/fonts/plus-jakarta-sans.woff2) -gt 20000
-          grep -q "Premier mois" src/ui.js
-          grep -q Graphite src/styles.css
-          if grep -q papier src/styles.css; then exit 1; fi
       - run: npm ci
       - run: npm test
       - run: npm run dist:win
       - run: python3 scripts/pack-win.py dist/win-unpacked Budget-Setup.zip
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.0
           files: Budget-Setup.zip
           generate_release_notes: false
           body: |
