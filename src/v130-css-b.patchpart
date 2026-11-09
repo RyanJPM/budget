@@ -1,0 +1,203 @@
+ 
+-html[data-theme="atelier"] {
+-  --ink: #292018;
+-  --muted: #7c6556;
+-  --accent: #c2410c;
++html[data-theme="lin"] {
++  --ink: #1c1917;
++  --muted: #78716c;
++  --accent: #1e3a8a;
+   --rose: #be123c;
+   --green: #3f6212;
+-  --bg: #faf6f3;
+-  --line: #eadfd6;
+-  --input: #fff4ec;
+-  --input-line: #fdba74;
+-  --input-focus: #fffaf6;
+-  --soft: #ffedd5;
+-  --soft-line: #fdba74;
+-  --white: #fffaf6;
+-  --sidebar: #292018;
+-  --nav-active: #c2410c;
+-  --banner-bg: #ffedd5;
+-  --banner-ink: #9a3412;
+-  --chip-future-bg: #ffedd5;
+-  --chip-future: #c2410c;
+-  --chip-past-bg: #f1e8e1;
+-  --track: #f1e8e1;
+-  --th: #fbf6f1;
+-  --hover: #fbf7f4;
+-  --soft-hover: #ffe4cc;
+-  --live: rgba(250, 246, 243, 0.94);
+-  font-family: "Palatino Linotype", Palatino, Georgia, serif;
++  --bg: #f7f5f2;
++  --line: #e7e2da;
++  --input: #fbf9f6;
++  --input-line: #d6cfc4;
++  --input-focus: #fff;
++  --soft: #eef2ff;
++  --soft-line: #c7d2fe;
++  --white: #fffcf8;
++  --sidebar: #1c1917;
++  --nav-active: #1e3a8a;
++  --banner-bg: #eef2ff;
++  --banner-ink: #1e3a8a;
++  --chip-future-bg: #eef2ff;
++  --chip-future: #1e3a8a;
++  --chip-past-bg: #ece7e1;
++  --track: #ece7e1;
++  --th: #fbf9f6;
++  --hover: #fbf9f6;
++  --soft-hover: #e0e7ff;
++  --live: rgba(247, 245, 242, 0.94);
++  --on-accent: #f8fafc;
++  font-family: "Outfit", "Segoe UI", sans-serif;
++}
++
++html[data-theme="graphite"] {
++  --ink: #f4f4f5;
++  --muted: #a1a1aa;
++  --accent: #d6ff4a;
++  --rose: #fb7185;
++  --green: #86efac;
++  --bg: #101010;
++  --line: #2a2a2a;
++  --input: #161616;
++  --input-line: #3f3f46;
++  --input-focus: #161616;
++  --soft: #1c240f;
++  --soft-line: #3f4d16;
++  --white: #1a1a1a;
++  --sidebar: #0a0a0a;
++  --sidebar-ink: #f4f4f5;
++  --sidebar-muted: #a1a1aa;
++  --nav: #e4e4e7;
++  --nav-active: #d6ff4a;
++  --nav-active-ink: #111;
++  --low: #fda4af;
++  --banner-bg: #1c240f;
++  --banner-ink: #d6ff4a;
++  --chip-future-bg: #1c240f;
++  --chip-future: #d6ff4a;
++  --chip-past-bg: #27272a;
++  --track: #27272a;
++  --th: #161616;
++  --hover: #202020;
++  --soft-hover: #24300f;
++  --live: rgba(16, 16, 16, 0.94);
++  --overlay: rgba(0, 0, 0, 0.62);
++  --on-accent: #111;
++  color-scheme: dark;
++  font-family: "Space Grotesk", "Segoe UI", sans-serif;
++}
++
++html[data-theme="nuit"] {
++  --ink: #eef2ff;
++  --muted: #9aa3c7;
++  --accent: #8b7cff;
++  --rose: #fb7185;
++  --green: #6ee7b7;
++  --bg: #0c1020;
++  --line: #2a3150;
++  --input: #14182b;
++  --input-line: #3d4670;
++  --input-focus: #14182b;
++  --soft: #1a1740;
++  --soft-line: #4338ca;
++  --white: #151a2e;
++  --sidebar: #080b16;
++  --sidebar-ink: #eef2ff;
++  --sidebar-muted: #9aa3c7;
++  --nav: #e0e7ff;
++  --nav-active: #8b7cff;
++  --nav-active-ink: #0c1020;
++  --low: #fda4af;
++  --banner-bg: #1a1740;
++  --banner-ink: #c4b5fd;
++  --chip-future-bg: #1a1740;
++  --chip-future: #c4b5fd;
++  --chip-past-bg: #1e2438;
++  --track: #1e2438;
++  --th: #14182b;
++  --hover: #1b2136;
++  --soft-hover: #241f4d;
++  --live: rgba(12, 16, 32, 0.94);
++  --overlay: rgba(0, 0, 0, 0.62);
++  --on-accent: #0c1020;
++  color-scheme: dark;
++  font-family: "Syne", "Segoe UI", sans-serif;
++}
++
++html[data-theme="braise"] {
++  --ink: #f6efe8;
++  --muted: #b5a69a;
++  --accent: #ff7a3c;
++  --rose: #fb7185;
++  --green: #86efac;
++  --bg: #161210;
++  --line: #3a312b;
++  --input: #1e1916;
++  --input-line: #5c4b40;
++  --input-focus: #1e1916;
++  --soft: #2a1c14;
++  --soft-line: #7c3a1d;
++  --white: #221c18;
++  --sidebar: #100d0b;
++  --sidebar-ink: #f6efe8;
++  --sidebar-muted: #b5a69a;
++  --nav: #f6efe8;
++  --nav-active: #ff7a3c;
++  --nav-active-ink: #1a100c;
++  --low: #fda4af;
++  --banner-bg: #2a1c14;
++  --banner-ink: #fdba74;
++  --chip-future-bg: #2a1c14;
++  --chip-future: #fdba74;
++  --chip-past-bg: #2a2420;
++  --track: #2a2420;
++  --th: #1e1916;
++  --hover: #2a2420;
++  --soft-hover: #3a2618;
++  --live: rgba(22, 18, 16, 0.94);
++  --overlay: rgba(0, 0, 0, 0.62);
++  --on-accent: #1a100c;
++  color-scheme: dark;
++  font-family: "Manrope", "Segoe UI", sans-serif;
+ }
+ 
+ * { box-sizing: border-box; }
+@@ -229,7 +354,7 @@ nav button {
+   padding: 10px 12px;
+ }
+ nav button:hover { background: rgba(255, 255, 255, 0.06); }
+-nav button.active { background: var(--nav-active); color: #fff; }
++nav button.active { background: var(--nav-active); color: var(--nav-active-ink, #fff); }
+ 
+ .side-foot {
+   margin-top: auto;
+@@ -458,7 +583,7 @@ html:not([data-theme="default"]) #mode-toggle { display: none; }
+ .skip-row .help { flex: 1 1 100%; margin: 0; }
+ .skip-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+ .spend-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+-.theme-list { display: flex; flex-direction: column; gap: 8px; }
++.theme-list { display: flex; flex-direction: column; gap: 8px; max-height: min(62vh, 540px); overflow: auto; }
+ .theme-choice {
+   display: flex;
+   flex-direction: column;
+@@ -474,10 +599,12 @@ html:not([data-theme="default"]) #mode-toggle { display: none; }
+ .theme-choice.on { border-color: var(--accent); background: var(--soft); }
+ .theme-choice strong { color: var(--ink); font-size: 15px; }
+ .theme-choice span, .theme-choice em { color: var(--muted); font-size: 12px; font-style: normal; }
+-.theme-choice[data-theme="papier"] { font-family: Georgia, "Times New Roman", serif; }
+-.theme-choice[data-theme="foret"] { font-family: Verdana, Geneva, sans-serif; }
+-.theme-choice[data-theme="ocean"] { font-family: Calibri, Candara, "Segoe UI", sans-serif; }
+-.theme-choice[data-theme="atelier"] { font-family: "Palatino Linotype", Palatino, Georgia, serif; }
++.theme-choice[data-theme="studio"] { font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif; }
++.theme-choice[data-theme="lagon"] { font-family: "Sora", "Segoe UI", sans-serif; }
++.theme-choice[data-theme="lin"] { font-family: "Outfit", "Segoe UI", sans-serif; }
++.theme-choice[data-theme="graphite"] { font-family: "Space Grotesk", "Segoe UI", sans-serif; }
++.theme-choice[data-theme="nuit"] { font-family: "Syne", "Segoe UI", sans-serif; }
++.theme-choice[data-theme="braise"] { font-family: "Manrope", "Segoe UI", sans-serif; }
+ #profile-manage.active {
+   background: var(--accent);
+   color: var(--on-accent);

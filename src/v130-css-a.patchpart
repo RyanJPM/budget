@@ -1,0 +1,201 @@
+diff --git a/src/styles.css b/src/styles.css
+index f00697c..36133fe 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1,3 +1,40 @@
++@font-face {
++  font-family: "Plus Jakarta Sans";
++  src: url("fonts/plus-jakarta-sans.woff2") format("woff2");
++  font-weight: 200 800;
++  font-display: swap;
++}
++@font-face {
++  font-family: "Sora";
++  src: url("fonts/sora.woff2") format("woff2");
++  font-weight: 200 800;
++  font-display: swap;
++}
++@font-face {
++  font-family: "Outfit";
++  src: url("fonts/outfit.woff2") format("woff2");
++  font-weight: 200 800;
++  font-display: swap;
++}
++@font-face {
++  font-family: "Space Grotesk";
++  src: url("fonts/space-grotesk.woff2") format("woff2");
++  font-weight: 200 700;
++  font-display: swap;
++}
++@font-face {
++  font-family: "Syne";
++  src: url("fonts/syne.woff2") format("woff2");
++  font-weight: 400 800;
++  font-display: swap;
++}
++@font-face {
++  font-family: "Manrope";
++  src: url("fonts/manrope.woff2") format("woff2");
++  font-weight: 200 800;
++  font-display: swap;
++}
++
+ :root {
+   --ink: #111827;
+   --muted: #6b7280;
+@@ -30,6 +67,7 @@
+   --live: rgba(248, 250, 252, 0.94);
+   --overlay: rgba(17, 24, 39, 0.48);
+   --on-accent: #fff;
++  --nav-active-ink: #fff;
+   color: var(--ink);
+   font-family: "Segoe UI", system-ui, sans-serif;
+   font-size: 14px;
+@@ -67,122 +105,209 @@ html[data-theme="default"][data-mode="dark"] {
+   --live: rgba(12, 17, 27, 0.94);
+   --overlay: rgba(0, 0, 0, 0.62);
+   --on-accent: #1e1b4b;
++  --nav-active-ink: #fff;
++  color-scheme: dark;
+ }
+ 
+-html[data-theme="papier"] {
+-  --ink: #3f2e22;
+-  --muted: #8a7364;
+-  --accent: #9a3412;
+-  --rose: #be123c;
+-  --green: #3f6212;
+-  --bg: #f6f1e7;
+-  --line: #e7dccb;
+-  --input: #fffaf3;
+-  --input-line: #e0c8a8;
+-  --input-focus: #fffaf3;
+-  --soft: #f3e6d4;
+-  --soft-line: #e0c8a8;
+-  --white: #fffaf3;
+-  --sidebar: #3f2e22;
+-  --nav-active: #9a3412;
+-  --banner-bg: #f3e6d4;
+-  --banner-ink: #9a3412;
+-  --chip-future-bg: #f3e6d4;
+-  --chip-future: #9a3412;
+-  --chip-past-bg: #efe6da;
+-  --track: #efe6da;
+-  --th: #f3ece3;
+-  --hover: #f8f1e6;
+-  --soft-hover: #eadcc8;
+-  --live: rgba(246, 241, 231, 0.94);
+-  font-family: Georgia, "Times New Roman", serif;
+}
+-
+-html[data-theme="foret"] {
+-  --ink: #14261c;
+-  --muted: #4d6b5a;
+-  --accent: #166534;
+-  --rose: #be123c;
+-  --green: #166534;
+-  --bg: #f2f7f3;
+-  --line: #d5e5da;
+-  --input: #e7f2ea;
+-  --input-line: #86efac;
+-  --input-focus: #f7fbf8;
+-  --soft: #e5f3e8;
+-  --soft-line: #86efac;
+-  --white: #ffffff;
+-  --sidebar: #143028;
+-  --nav-active: #166534;
+-  --banner-bg: #e5f3e8;
+-  --banner-ink: #14532d;
+-  --chip-future-bg: #ecfccb;
+-  --chip-future: #3f6212;
+-  --chip-past-bg: #e5eee8;
+-  --track: #e5eee8;
+-  --th: #f3f8f4;
+-  --hover: #f4faf6;
+-  --soft-hover: #d7eddc;
+-  --live: rgba(242, 247, 243, 0.94);
+-  font-family: Verdana, Geneva, sans-serif;
++html[data-theme="studio"] {
++  --ink: #18181b;
++  --muted: #71717a;
++  --accent: #18181b;
++  --rose: #e11d48;
++  --green: #15803d;
++  --bg: #f4f4f5;
++  --line: #e4e4e7;
++  --input: #fafafa;
++  --input-line: #d4d4d8;
++  --input-focus: #fff;
++  --soft: #f4f4f5;
++  --soft-line: #d4d4d8;
++  --white: #fff;
++  --sidebar: #18181b;
++  --nav-active: #18181b;
++  --banner-bg: #f4f4f5;
++  --banner-ink: #18181b;
++  --chip-future-bg: #f4f4f5;
++  --chip-future: #18181b;
++  --chip-past-bg: #e4e4e7;
++  --track: #e4e4e7;
++  --th: #fafafa;
++  --hover: #fafafa;
++  --soft-hover: #e4e4e7;
++  --live: rgba(244, 244, 245, 0.94);
++  --on-accent: #fafafa;
++  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+ }
+ 
+-html[data-theme="ocean"] {
+-  --ink: #0c2e3a;
+-  --muted: #4b6b78;
+-  --accent: #0e7490;
++html[data-theme="lagon"] {
++  --ink: #0c1f1c;
++  --muted: #5b726c;
++  --accent: #0f766e;
+   --rose: #e11d48;
+   --green: #0f766e;
+-  --bg: #f0f7fb;
+-  --line: #d3e4ee;
+-  --input: #e7f4f8;
+-  --input-line: #67e8f9;
+-  --input-focus: #f5fbfd;
+-  --soft: #e0f2fe;
+-  --soft-line: #7dd3fc;
+-  --white: #ffffff;
+-  --sidebar: #0c2e3a;
+-  --nav-active: #0e7490;
+-  --banner-bg: #e0f2fe;
+-  --banner-ink: #0c4a6e;
+-  --chip-future-bg: #e0f2fe;
+-  --chip-future: #0369a1;
+-  --chip-past-bg: #e6eef2;
+-  --track: #e6eef2;
+-  --th: #f3f8fb;
+-  --hover: #f4fafc;
+-  --soft-hover: #d4eef8;
+-  --live: rgba(240, 247, 251, 0.94);
+-  font-family: Calibri, Candara, "Segoe UI", sans-serif;
++  --bg: #f3f7f6;
++  --line: #d5e4e0;
++  --input: #eef6f4;
++  --input-line: #99d5cb;
++  --input-focus: #fff;
++  --soft: #e5f4f1;
++  --soft-line: #99d5cb;
++  --white: #fff;
++  --sidebar: #0b2420;
++  --nav-active: #0f766e;
++  --banner-bg: #e5f4f1;
++  --banner-ink: #115e59;
++  --chip-future-bg: #e5f4f1;
++  --chip-future: #0f766e;
++  --chip-past-bg: #e4eeeb;
++  --track: #e4eeeb;
++  --th: #f6fbfa;
++  --hover: #f6fbfa;
++  --soft-hover: #d5efe9;
++  --live: rgba(243, 247, 246, 0.94);
++  --on-accent: #f0fdfa;
++  font-family: "Sora", "Segoe UI", sans-serif;
+ }
