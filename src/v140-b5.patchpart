@@ -1,0 +1,16 @@
++  if (!query) return;
++  findState.hits = collectHits(query);
++  findState.index = findState.hits.length ? keep % findState.hits.length : 0;
++  paintFind();
++}
++
++function stepFind(dir) {
++  if (!findState.hits.length) {
++    applyFind(true);
++    return;
++  }
++  findState.index += dir;
++  paintFind();
++}
++
+ boot();

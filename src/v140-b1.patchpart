@@ -1,0 +1,87 @@
+diff --git a/src/ui.js b/src/ui.js
+index cbd4566..5dd70f6 100644
+--- a/src/ui.js
++++ b/src/ui.js
+@@ -68,7 +68,9 @@ function emptyBudget() {
+     && !(data.charges || []).length
+     && !(data.expenses || []).length
+     && !(data.sales || []).length
+-    && !(data.debts || []).length;
++    && !(data.debts || []).length
++    && !(data.investments || []).length
++    && !(data.loans || []).length;
+ }
+ 
+ function shown(rows) {
+@@ -131,6 +133,12 @@ function refreshSide(rows) {
+   });
+   const live = document.getElementById("live-reste");
+   if (live) live.innerHTML = "Reste maintenant, " + esc(current.label) + " : <strong>" + esc(E.eur(current.reste)) + "</strong>";
++  const potEl = document.getElementById("side-pot");
++  if (potEl) {
++    const pot = current.pot || 0;
++    potEl.hidden = pot < 0.01;
++    potEl.textContent = pot ? "Placé à part " + E.eur(pot) : "";
++  }
+ }
+ 
+ function ledger(row) {
+@@ -142,9 +150,13 @@ function ledger(row) {
+     lines.push(["Vente : " + sale.label, sale.amount, "Encaissé à part, pas mélangé à la paye."]);
+   }
+   if (row.recu) lines.push(["On te rembourse", row.recu, row.receivedFrom.join(", ")]);
++  for (const loan of row.loansIn || []) {
++    lines.push(["Prêt reçu : " + loan.label, loan.amount, "Entre sur le compte. À rembourser."]);
++  }
+   if (row.extra) lines.push([row.extraLabel || "Extra", -row.extra, ""]);
+   lines.push(["Charges", -row.charges, "Factures."]);
+   if (row.expenses) lines.push(["Dépenses", -row.expenses, "Courses, achats, prélèvements."]);
++  if (row.placed) lines.push(["Placé", -row.placed, "Sorti du compte, toujours à toi."]);
+   if (row.cashPaid) lines.push(["Remboursements", -row.cashPaid, "Argent qui sort vraiment."]);
+   let run = 0;
+   return lines.map(([label, amount, note]) => {
+@@ -182,6 +194,22 @@ function expenseCard(row) {
+   </article>`;
+ }
+ 
++function investCard(row) {
++  const named = (state.data.investments || []).some((item) => (item.name || "").trim());
++  if (!named && !(row.pot > 0.009)) return "";
++  const lines = row.placedDetail || [];
++  return `<article class="card">
++    <h2>Investi</h2>
++    ${lines.map((item) => `<div class="charge">
++      <span>${esc(item.name)}</span>
++      <strong class="num">${esc(E.eur(item.amount))}</strong>
++      <span class="note" style="grid-column:auto;margin:0">ce mois</span>
++    </div>`).join("") || '<p class="empty">Rien de placé ce mois-ci.</p>'}
++    <div class="line total"><span>Total placé</span><span></span><strong class="num">${esc(E.eur(row.pot || 0))}</strong></div>
++    <p class="help">Cet argent est sorti du compte. Il dort de côté, il n’est pas dépensé.</p>
++  </article>`;
++}
++
+ function renderSpend(rows) {
+   const row = shown(rows);
+   const all = state.data.expenses || [];
+@@ -242,6 +270,7 @@ function renderNow(rows) {
+         </div>
+         <p class="reste ${low ? "low" : ""}">${esc(E.eur(row.reste))}</p>
+         <p class="sub">${esc(row.payLabel)}, ${esc(E.eur(row.salary))}. Le plan s’arrête avant de descendre sous ${esc(E.eur(row.floor))}. Ce minimum reste à toi.</p>
++        ${row.pot ? `<p class="pot">Placé à part : ${esc(E.eur(row.pot))}. Ce n’est pas sur le compte.</p>` : ""}
+       </div>
+       <div class="encore">
+         <span>Encore dû</span>
+@@ -264,7 +293,7 @@ function renderNow(rows) {
+         }).join("")}
+         <div class="line total"><span>Reste</span><span></span><strong class="num">${esc(E.eur(row.reste))}</strong></div>
+       </article>
+-      <div>
++      <div class="stack">
+         <article class="card">
+           <h2>Charges</h2>
+           ${row.chargesDetail.map((item) => `<div class="charge">
+@@ -275,6 +304,7 @@ function renderNow(rows) {
+           <div class="line total"><span>Total</span><span></span><strong class="num">${esc(E.eur(row.charges))}</strong></div>
+         </article>
+         ${expenseCard(row)}
++        ${investCard(row)}
