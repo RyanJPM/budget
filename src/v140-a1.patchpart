@@ -1,0 +1,118 @@
+diff --git a/README.md b/README.md
+index 2a7001b..4697885 100644
+--- a/README.md
++++ b/README.md
+@@ -32,3 +32,5 @@ Sauter un mois, sur une dépense, décale un prélèvement : le mois sauté n’
+ Une vente se range dans Objets vendus, le mois où l’argent est encaissé. Le minimum à garder reste dans la poche et n’est pas une dépense. Vide, il vaut 150 €. Écris 0 pour ne rien garder.
+ 
+ Le bouton Design, en bas, propose Défaut, trois apparences claires et trois sombres. Clair et sombre ne concernent que Défaut. Ce choix reste sur l’ordinateur, il n’est pas dans le fichier de profil.
++
++Un placement, dans Investissements, sort du compte sans être une dépense. Le total placé reste visible à part du reste. Un prêt reçu entre le mois choisi et se rembourse ensuite, après les dettes. Ctrl+F, ou le bouton Chercher, cherche un mot sur la page.
+diff --git a/package.json b/package.json
+index 6939d8d..646e276 100644
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "budget",
+   "productName": "Budget",
+-  "version": "1.3.0",
++  "version": "1.4.0",
+   "description": "Budget mensuel, sur cet ordinateur.",
+   "main": "electron/main.js",
+   "author": "Budget",
+diff --git a/src/engine.js b/src/engine.js
+index 4b8207f..39386db 100644
+--- a/src/engine.js
++++ b/src/engine.js
+@@ -132,6 +132,8 @@
+       data.charges = keep;
+       data.chargesReady = true;
+     }
++    if (!Array.isArray(data.investments)) data.investments = [];
++    if (!Array.isArray(data.loans)) data.loans = [];
+     migrateLegacy(data);
+     return moved;
+   }
+@@ -171,6 +173,8 @@
+       charges: [],
+       sales: [],
+       debts: [],
++      loans: [],
++      investments: [],
+       receivables: [],
+       exceptions: [],
+       expenses: [],
+@@ -296,7 +300,24 @@
+     const start = parseMonth(data.start) || now;
+     const span = Math.max(count || 24, monthKey(now) - monthKey(start) + 6, 1);
+     const debts = data.debts || [];
+-    let carried = debts.map(openingOf);
++    const loans = (data.loans || []).filter((loan) => (loan.label || "").trim() && (Number(loan.amount) || 0) > 0);
++    const loanDebts = loans.map((loan) => ({
++      person: loan.label,
++      amount: Number(loan.amount) || 0,
++      paid: Number(loan.paid) || 0,
++      cap: loan.cap,
++      mode: loan.mode === "Solde entier" ? "Solde entier" : "Progressif",
++      start: loan.start || "",
++      after: loan.after || "",
++      pause: !!loan.pause,
++      settled: !!loan.settled,
++      halfBills: false,
++      loan: true,
++      received: loan.received || "",
++    }));
++    const plan = debts.concat(loanDebts);
++    let carried = debts.map(openingOf).concat(loans.map(() => 0));
++    const loanLive = loans.map(() => false);
+     const floor = data.floor;
+     const keep = floor === null || floor === undefined || floor === "" || !Number.isFinite(Number(floor))
+       ? 150
+@@ -306,6 +327,17 @@
+     for (let i = 0; i < span; i++) {
+       const ym = addMonths(start, i);
+       const ex = findException(data, ym);
++      for (let n = 0; n < loans.length; n++) {
++        const loan = loans[n];
++        const idx = debts.length + n;
++        const bornAt = parseMonth(loan.received) || parseMonth(loan.start);
++        const alive = !loan.settled && (!bornAt || cmpMonth(ym, bornAt) >= 0);
++        if (!alive) carried[idx] = 0;
++        else if (!loanLive[n]) {
++          carried[idx] = round2(Math.max(0, (Number(loan.amount) || 0) - (Number(loan.paid) || 0)));
++          loanLive[n] = true;
++        }
++      }
+       const openings = carried.slice();
+       let halfSum = 0;
+       let brut = 0;
+@@ -359,9 +391,30 @@
+         receivedFrom.push(row.person || "Quelqu'un");
+       }
+       recu = round2(recu);
++      let borrowed = 0;
++      const loansIn = [];
++      for (const loan of loans) {
++        const when = parseMonth(loan.received);
++        const amount = Number(loan.amount) || 0;
++        if (!when || !amount || cmpMonth(when, ym) !== 0) continue;
++        borrowed += amount;
++        loansIn.push({ label: loan.label, amount: round2(amount) });
++      }
++      borrowed = round2(borrowed);
++      let placed = 0;
++      const placedDetail = [];
++      for (const item of data.investments || []) {
++        if (!chargeActive(item, ym)) continue;
++        const amount = round2(Number(item.amount) || 0);
++        if (!amount) continue;
++        placed += amount;
++        placedDetail.push({ name: item.name, amount });
++      }
++      placed = round2(placed);
++      const pot = round2((i === 0 ? 0 : rows[i - 1].pot) + placed);
+       const report = i === 0 ? 0 : rows[i - 1].reste;
+       const extra = ex ? (Number(ex.extra) || 0) : 0;
+-      const income = round2(report + salary + sales + recu);
++      const income = round2(report + salary + sales + recu + borrowed);
