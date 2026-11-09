@@ -4,12 +4,15 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   windows:
+    if: github.ref_type == 'tag' || contains(github.event.head_commit.message, 'Release v1.4.0')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +21,7 @@ jobs:
           node-version: "22"
       - run: if [ -f src/ui-a.js ]; then cat src/ui-a.js src/ui-b.js > src/ui.js; fi
       - run: if [ -f src/v130-css-a.patchpart ]; then cat src/v130-css-a.patchpart src/v130-css-b.patchpart > src/v130-css.patch; git apply src/v130-ui.patch src/v130-css.patch; fi
+      - run: if [ -f src/v140-a1.patchpart ]; then cat src/v140-a1.patchpart src/v140-a2.patchpart src/v140-a3.patchpart src/v140-a4.patchpart > src/v140-a.patch; cat src/v140-b1.patchpart src/v140-b2.patchpart src/v140-b3.patchpart src/v140-b4.patchpart src/v140-b5.patchpart > src/v140-b.patch; git apply src/v140-a.patch src/v140-b.patch; fi
       - name: Polices
         run: |
           mkdir -p src/fonts
@@ -32,6 +36,8 @@ jobs:
           python3 -c "open('src/fonts/NOTICE.txt','w').write('Plus Jakarta Sans, Sora, Outfit, Space Grotesk, Syne et Manrope sont sous la SIL Open Font License 1.1.\n')"
           test $(wc -c < src/fonts/plus-jakarta-sans.woff2) -gt 20000
           grep -q "Premier mois" src/ui.js
+          grep -q "Investissements" src/ui.js
+          grep -q 'id="findbar"' src/index.html
           grep -q 'data-theme="graphite"' src/styles.css
           if grep -q 'data-theme="papier"' src/styles.css; then exit 1; fi
       - run: npm ci
@@ -40,11 +46,13 @@ jobs:
       - run: python3 scripts/pack-win.py dist/win-unpacked Budget-Setup.zip
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.4.0
           files: Budget-Setup.zip
           generate_release_notes: false
           body: |
             Extrais Budget-Setup.zip, puis lance Budget.exe.
             L'application est vide. Importe ton fichier .budget depuis la page Profil.
 
-            Une charge peut commencer à un mois précis. Vide, elle est là depuis le début.
-            Défaut garde le clair et le sombre. Studio, Lagon et Lin sont clairs. Graphite, Nuit et Braise sont sombres.
+            Un placement sort du compte sans être une dépense. Le total placé reste visible à part.
+            Un prêt reçu entre le mois choisi et se rembourse ensuite.
+            Ctrl+F, ou le bouton Chercher, cherche un mot sur la page.
